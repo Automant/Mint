@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint Exchange - Secure Escrow Service</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(to right, #2b5876, #4e4376);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <nav class="p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <span class="text-xl font-bold">Mint Exchange</span>
+        </div>
+        <div class="hidden md:block">
+            <ul class="flex space-x-6">
+                <li><a href="#" class="hover:text-gray-300">Home</a></li>
+                <li><a href="#how-it-works" class="hover:text-gray-300">How It Works</a></li>
+                <li><a href="#safety" class="hover:text-gray-300">Safety</a></li>
+                <li><a href="#faq" class="hover:text-gray-300">FAQ</a></li>
+            </ul>
+        </div>
+        <div class="flex space-x-4">
+            <button id="loginBtn" class="bg-white text-indigo-700 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors">Login</button>
+            <button id="signupBtn" class="bg-indigo-500 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-600 transition-colors">Sign Up</button>
+            <div id="userSection" class="hidden">
+                <span id="userEmail" class="mr-2"></span>
+                <button id="logoutBtn" class="text-sm hover:underline">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 py-16 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">Secure Escrow Service for Digital Transactions</h1>
+        <p class="text-xl mb-8 max-w-3xl mx-auto">Mint Exchange provides a trustless escrow solution to safely conduct transactions online without the need for third-party intermediaries.</p>
+        <button id="startDealBtn" class="bg-green-500 text-white text-lg px-8 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">Start a Deal</button>
+    </div>
+
+    <!-- Authentication Modals -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white text-gray-800 rounded-lg p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="authTitle" class="text-2xl font-bold">Login</h2>
+                <button id="closeAuthModal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="authForm">
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 text-white py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors">Login</button>
+            </form>
+            <div class="mt-4 text-center">
+                <a href="#" id="authToggleLink" class="text-indigo-600 hover:underline">Don't have an account? Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Creation Modal -->
+    <div id="dealModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white text-gray-800 rounded-lg p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Create a Deal</h2>
+                <button id="closeDealModal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="dealForm">
+                <div class="mb-4">
+                    <label for="counterpartyId" class="block text-gray-700 font-medium mb-2">Counterparty ID or Username</label>
+                    <input type="text" id="counterpartyId" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Your Role</label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="role" value="sender" class="mr-2" checked>
+                            <span>Sender (Buyer)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="role" value="receiver" class="mr-2">
+                            <span>Receiver (Seller)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="amount" class="block text-gray-700 font-medium mb-2">Amount (LTC)</label>
+                    <input type="number" id="amount" step="0.001" min="0.001" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="description" class="block text-gray-700 font-medium mb-2">Transaction Description</label>
+                    <textarea id="description" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md font-medium hover:bg-green-700 transition-colors">Create Deal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold mb-12 text-center">How Mint Exchange Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="glass-card p-6">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-indigo-500 rounded-full w-12 h-12 flex items-center justify-center">
+                        <span class="text-xl font-bold">1</span>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-center">Create a Deal</h3>
+                <p class="text-center">Start by creating a deal and inviting the other party. Both parties will agree on roles: sender (buyer) or receiver (seller).</p>
+            </div>
+            <div class="glass-card p-6">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-indigo-500 rounded-full w-12 h-12 flex items-center justify-center">
+                        <span class="text-xl font-bold">2</span>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-center">Fund the Escrow</h3>
+                <p class="text-center">The sender transfers funds to the secure escrow wallet. The funds are locked until both parties confirm completion or agree to a refund.</p>
+            </div>
+            <div class="glass-card p-6">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-indigo-500 rounded-full w-12 h-12 flex items-center justify-center">
+                        <span class="text-xl font-bold">3</span>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-center">Complete the Transaction</h3>
+                <p class="text-center">Once the receiver delivers the product or service and the sender confirms receipt, the funds are released to the receiver.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety Section -->
+    <section id="safety" class="container mx-auto px-4 py-16 bg-indigo-900 bg-opacity-30 rounded-lg">
+        <h2 class="text-3xl font-bold mb-8 text-center">Safety First</h2>
+        <div class="max-w-3xl mx-auto">
+            <div class="glass-card p-6 mb-6">
+                <h3 class="text-xl font-bold mb-3 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Automated Escrow
+                </h3>
+                <p>Mint Exchange removes the human aspect of an escrow to avoid scams. Our automated system ensures funds are securely held until all parties are satisfied.</p>
+            </div>
+            <div class="glass-card p-6 mb-6">
+                <h3 class="text-xl font-bold mb-3 flex items-center text-yellow-300">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    Warning
+                </h3>
+                <p class="font-medium">If anyone ever asks you to deal outside of Mint Exchange, please report them immediately. We do not condone any deals outside of our platform and cannot guarantee the safety of your funds in such cases.</p>
+            </div>
+            <div class="glass-card p-6">
+                <h3 class="text-xl font-bold mb-3 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Zero Platform Fees
+                </h3>
+                <p>Mint Exchange charges no fees for using our service. However, network fees will apply when sending and receiving funds, which are outside of our control.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Active Deals Section -->
+    <section id="activeDeals" class="container mx-auto px-4 py-16 hidden">
+        <h2 class="text-3xl font-bold mb-8 text-center">Your Active Deals</h2>
+        <div id="dealsList" class="space-y-4">
+            <!-- Deals will be populated here -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-indigo-900 py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span class="text-xl font-bold">Mint Exchange</span>
+                    </div>
+                    <p class="mt-2 text-indigo-200">Safe, secure, and automated escrow service</p>
+                </div>
+                <div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-indigo-200 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385c.6.105.825-.255.825-.57c0-.285-.015-1.23-.015-2.235c-3.015.555-3.795-.735-4.035-1.41c-.135-.345-.72-1.41-1.23-1.695c-.42-.225-1.02-.78-.015-.795c.945-.015 1.62.87 1.845 1.23c1.08 1.815 2.805 1.305 3.495.99c.105-.78.42-1.305.765-1.605c-2.67-.3-5.46-1.335-5.46-5.925c0-1.305.465-2.385 1.23-3.225c-.12-.3-.54-1.53.12-3.18c0 0 1.005-.315 3.3 1.23c.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23c.66 1.65.24 2.88.12 3.18c.765.84 1.23 1.905 1.23 3.225c0 4.605-2.805 5.625-5.475 5.925c.435.375.81 1.095.81 2.22c0 1.605-.015 2.895-.015 3.3c0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-indigo-200 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.5 5.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5zm0 3a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5zm15 7.5v-1.5a7.5 7.5 0 0 0-15 0v1.5h15zm3 0v-1.5c0-6.075-4.925-11-11-11S3.5 8.175 3.5 14.25v1.5H0V18h24v-2.25h-1.5z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-indigo-200">
+                <p>&copy; 2025 Mint Exchange. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB50g7xkqoJ73GAFRVUqoegBwwBRSF-3Cw",
+            authDomain: "automint-11c65.firebaseapp.com",
+            databaseURL: "https://automint-11c65-default-rtdb.firebaseio.com",
+            projectId: "automint-11c65",
+            storageBucket: "automint-11c65.firebasestorage.app",
+            messagingSenderId: "1013489908092",
+            appId: "1:1013489908092:web:cd85bd69ec7a2a36c2ccf9",
+            measurementId: "G-71MYCSR5RK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // DOM Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userSection = document.getElementById('userEmail');
+        const authModal = document.getElementById('authModal');
+        const authTitle = document.getElementById('authTitle');
+        const authForm = document.getElementById('authForm');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authToggleLink = document.getElementById('authToggleLink');
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const startDealBtn = document.getElementById('startDealBtn');
+        const dealModal = document.getElementById('dealModal');
+        const closeDealModal = document.getElementById('closeDealModal');
+        const dealForm = document.getElementById('dealForm');
+        const activeDealsSection = document.getElementById('activeDeals');
+        const dealsList = document.getElementById('dealsList');
+
+        // Auth State
+        let isLogin = true;
+        let currentUser = null;
+
+        // Event Listeners
+        loginBtn.addEventListener('click', () => {
+            isLogin = true;
+            updateAuthModalUI();
+            authModal.classList.remove('hidden');
+        });
+
+        signupBtn.addEventListener('click', () => {
+            isLogin = false;
+            updateAuthModalUI();
+            authModal.classList.remove('hidden');
+        });
+
+        closeAuthModal.addEventListener('click', () => {
+            authModal.classList.add('hidden');
+        });
+
+        authToggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+            updateAuthModalUI();
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (isLogin) {
+                loginUser(email, password);
+            } else {
+                signupUser(email, password);
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut()
+                .then(() => {
+                    console.log('User signed out');
+                })
+                .catch((error) => {
+                    console.error('Error signing out:', error);
+                });
+        });
+
+        startDealBtn.addEventListener('click', () => {
+            if (currentUser) {
+                dealModal.classList.remove('hidden');
+            } else {
+                isLogin = true;
+                updateAuthModalUI();
+                authModal.classList.remove('hidden');
+            }
+        });
+
+        closeDealModal.addEventListener('click', () => {
+            dealModal.classList.add('hidden');
+        });
+
+        dealForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const counterpartyId = document.getElementById('counterpartyId').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value;
+            
+            createDeal(counterpartyId, role, amount, description);
+        });
+
+        // Auth Functions
+        function updateAuthModalUI() {
+            if (isLogin) {
+                authTitle.textContent = 'Login';
+                authSubmitBtn.textContent = 'Login';
+                authToggleLink.textContent = "Don't have an account? Sign up";
+            } else {
+                authTitle.textContent = 'Sign Up';
+                authSubmitBtn.textContent = 'Sign Up';
+                authToggleLink.textContent = 'Already have an account? Login';
+            }
+        }
+
+        function loginUser(email, password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    authModal.classList.add('hidden');
+                    console.log('User logged in:', userCredential.user);
+                })
+                .catch((error) => {
+                    alert(`Login error: ${error.message}`);
+                });
+        }
+
+        function signupUser(email, password) {
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Create user profile in the database
+                    const user = userCredential.user;
+                    const userRef = database.ref('users/' + user.uid);
+                    
+                    userRef.set({
+                        email: user.email,
+                        createdAt: Date.now(),
+                        userId: user.uid
+                    });
+                    
+                    authModal.classList.add('hidden');
+                    console.log('User created:', user);
+                })
+                .catch((error) => {
+                    alert(`Signup error: ${error.message}`);
+                });
+        }
+
+        // Deal Functions
+        function createDeal(counterpartyId, role, amount, description) {
+            if (!currentUser) return;
+            
+            // Create a new deal in the database
+            const dealRef = database.ref('deals').push();
+            const dealId = dealRef.key;
+            
+            const newDeal = {
+                initiatorId: currentUser.uid,
+                counterpartyId: counterpartyId,
+                initiatorRole: role,
+                counterpartyRole: role === 'sender' ? 'receiver' : 'sender',
+                amount: parseFloat(amount),
+                description: description,
+                status: 'pending',
+                createdAt: Date.now(),
+                ltcAddress: generateRandomLTCAddress() // In a real app, this would be generated securely
+            };
+            
+            dealRef.set(newDeal)
+                .then(() => {
+                    dealModal.classList.add('hidden');
+                    alert(`Deal created successfully! Deal ID: ${dealId}`);
+                    dealForm.reset();
+                })
+                .catch((error) => {
+                    alert(`Error creating deal: ${error.message}`);
+                });
+        }
+
+        function generateRandomLTCAddress() {
+            // This is a placeholder. In a real app, you would generate a proper LTC address
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let address = 'L';
+            for (let i = 0; i < 33; i++) {
+                address += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return address;
+        }
+
+        function loadUserDeals() {
+            if (!currentUser) return;
+            
+            // Clear existing deals
+            dealsList.innerHTML = '';
+            
+            // Load deals where the user is either the initiator or counterparty
+            const dealsRef = database.ref('deals');
+            
+            dealsRef.orderByChild('initiatorId').equalTo(currentUser.uid).on('child_added', (snapshot) => {
+                addDealToUI(snapshot.key, snapshot.val(), 'initiator');
+            });
+            
+            dealsRef.orderByChild('counterpartyId').equalTo(currentUser.uid).on('child_added', (snapshot) => {
+                addDealToUI(snapshot.key, snapshot.val(), 'counterparty');
+            });
+        }
+
+        function addDealToUI(dealId, deal, userRole) {
+            const dealEl = document.createElement('div');
+            dealEl.className = 'glass-card p-6';
+            
+            const statusClass = getStatusClass(deal.status);
+            const userIsReceiver = (userRole === 'initiator' && deal.initiatorRole === 'receiver') || 
+                                  (userRole === 'counterparty' && deal.counterpartyRole === 'receiver');
+            
+            dealEl.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold">${deal.description}</h3>
+                        <p class="text-indigo-200">Deal ID: ${dealId}</p>
+                        <p class="mt-2">Amount: ${deal.amount} LTC</p>
+                        <p>Your Role: ${userIsReceiver ? 'Receiver (Seller)' : 'Sender (Buyer)'}</p>
+                        <p>Created: ${new Date(deal.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-3 py-1 rounded-full ${statusClass}">${deal.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                ${deal.status === 'pending' && !userIsReceiver ? `
+                    <div class="mt-4 p-4 bg-indigo-800 bg-opacity-30 rounded-lg">
+                        <p class="font-medium">Send ${deal.amount} LTC to:</p>
+                        <p class="font-mono my-2 bg-indigo-700 p-2 rounded overflow-x-auto">${deal.ltcAddress}</p>
+                    </div>
+                ` : ''}
+                <div class="flex justify-end space-x-4 mt-4">
+                    ${deal.status === 'funded' && !userIsReceiver ? `
+                        <button class="release-btn bg-green-500 text-white px-4 py-2 rounded-md" data-deal-id="${dealId}">Release Funds</button>
+                    ` : ''}
+                    ${deal.status === 'funded' && userIsReceiver ? `
+                        <button class="confirm-btn bg-blue-500 text-white px-4 py-2 rounded-md" data-deal-id="${dealId}">Confirm Receipt</button>
+                    ` : ''}
+                    ${deal.status === 'pending' || deal.status === 'funded' ? `
+                        <button class="refund-btn bg-yellow-500 text-white px-4 py-2 rounded-md" data-deal-id="${dealId}">Refund</button>
+                    ` : ''}
+                </div>
+            `;
+            
+            dealsList.appendChild(dealEl);
+            
+            // Add event listeners to the buttons
+            const releaseBtn = dealEl.querySelector('.release-btn');
+            if (releaseBtn) {
+                releaseBtn.addEventListener('click', () => releaseFunds(dealId));
+            }
+            
+            const confirmBtn = dealEl.querySelector('.confirm-btn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', () => confirmReceipt(dealId));
+            }
+            
+            const refundBtn = dealEl.querySelector('.refund-btn');
+            if (refundBtn) {
+                refundBtn.addEventListener('click', () => refundFunds(dealId));
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'pending':
+                    return 'bg-yellow-500 text-white';
+                case 'funded':
+                    return 'bg-blue-500 text-white';
+                case 'completed':
+                    return 'bg-green-500 text-white';
+                case 'refunded':
+                    return 'bg-red-500 text-white';
+                default:
+                    return 'bg-gray-500 text-white';
+            }
+        }
+
+        function releaseFunds(dealId) {
+            if (!confirm('Are you sure you want to release the funds? This action cannot be undone.')) return;
+            
+            database.ref(`deals/${dealId}`).update({
+                status: 'completed',
+                completedAt: Date.now()
+            })
+            .then(() => {
+                console.log('Funds released successfully');
+            })
+            .catch((error) => {
+                alert(`Error releasing funds: ${error.message}`);
+            });
+        }
+
+        function confirmReceipt(dealId) {
+            if (!confirm('Are you confirming receipt of the product or service? This will allow the sender to release funds.')) return;
+            
+            database.ref(`deals/${dealId}`).update({
+                receiverConfirmed: true
+            })
+            .then(() => {
+                console.log('Receipt confirmed successfully');
+                alert('Receipt confirmed. The sender can now release the funds to you.');
+            })
+            .catch((error) => {
+                alert(`Error confirming receipt: ${error.message}`);
+            });
+        }
+
+        function refundFunds(dealId) {
+            if (!confirm('Are you sure you want to refund the funds? This action cannot be undone.')) return;
+            
+            database.ref(`deals/${dealId}`).update({
+                status: 'refunded',
+                refundedAt: Date.now()
+            })
+            .then(() => {
+                console.log('Funds refunded successfully');
+            })
+            .catch((error) => {
+                alert(`Error refunding funds: ${error.message}`);
+            });
+        }
+
+        // Function to simulate funding a deal (in a real app, this would be detected automatically)
+        function simulateFundDeal(dealId) {
+            database.ref(`deals/${dealId}`).update({
+                status: 'funded',
+                fundedAt: Date.now()
+            })
+            .then(() => {
+                console.log('Deal funded successfully');
+            })
+            .catch((error) => {
+                alert(`Error funding deal: ${error.message}`);
+            });
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('signupBtn').classList.add('hidden');
+                document.getElementById('userSection').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = user.email;
+                activeDealsSection.classList.remove('hidden');
+                
+                // Load user's deals
+                loadUserDeals();
+            } else {
+                // User is signed out
+                document.getElementById('loginBtn').classList.remove('hidden');
+                document.getElementById('signupBtn').classList.remove('hidden');
+                document.getElementById('userSection').classList.add('hidden');
+                activeDealsSection.classList.add('hidden');
+            }
+        });
+
+        // Add FAQ Section
+        const faqSection = document.createElement('section');
+        faqSection.id = 'faq';
+        faqSection.className = 'container mx-auto px-4 py-16';
+        faqSection.innerHTML = `
+            <h2 class="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-2">Is the bot safe?</h3>
+                    <p>Yes, Mint Exchange is safe to use for everyone. We aim to remove the human aspect of an escrow to avoid scams. If you deal outside of Mint Exchange, we are not responsible for any losses you may incur.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-2">Are there any fees for using Mint Exchange?</h3>
+                    <p>Mint Exchange charges no fees for using the service. However, network fees will apply when sending and receiving funds. We are not in control of these fees.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-2">What cryptocurrencies does Mint Exchange support?</h3>
+                    <p>Currently, Mint Exchange supports Litecoin (LTC) for escrow transactions. We may add support for additional cryptocurrencies in the future.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-2">How long does a transaction stay in escrow?</h3>
+                    <p>Transactions remain in escrow until either the sender releases the funds to the receiver or initiates a refund. There is no time limit, allowing both parties to complete their transaction comfortably.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-2">What happens if there's a dispute?</h3>
+                    <p>If both parties cannot agree on releasing or refunding the funds, please contact our support team. We will review the transaction and help mediate a resolution.</p>
+                </div>
+            </div>
+        `;
+
+        // Insert FAQ section before the footer
+        document.querySelector('footer').before(faqSection);
+
+        // Make LTC address copy function
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copy-address')) {
+                const address = e.target.dataset.address;
+                navigator.clipboard.writeText(address)
+                    .then(() => {
+                        e.target.textContent = 'Copied!';
+                        setTimeout(() => {
+                            e.target.textContent = 'Copy Address';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+            }
+        });
+
+        // Security enhancement - set security rules
+        function setupSecurityRules() {
+            // This would typically be done in the Firebase console
+            // or via a separate security rules file, but we show the concept here
+            const securityRules = {
+                "rules": {
+                    "users": {
+                        "$uid": {
+                            ".read": "$uid === auth.uid",
+                            ".write": "$uid === auth.uid"
+                        }
+                    },
+                    "deals": {
+                        "$dealId": {
+                            ".read": "data.child('initiatorId').val() === auth.uid || data.child('counterpartyId').val() === auth.uid",
+                            ".write": "(data.child('initiatorId').val() === auth.uid || data.child('counterpartyId').val() === auth.uid) && (!data.exists() || data.child('status').val() !== 'completed')"
+                        }
+                    }
+                }
+            };
+            
+            console.log("Security rules concept:", securityRules);
+            // In a real implementation, these would be deployed to Firebase
+        }
+
+        // Call setupSecurityRules to show the concept (in actual implementation this would be done differently)
+        setupSecurityRules();
+    </script>
+</body>
+</html>
