@@ -33,7 +33,7 @@
                 <h1>Fast & Secure Cryptocurrency Exchange</h1>
                 <p>Trade cryptocurrencies with confidence on AutoMint's advanced platform. Low fees, high security, and seamless transactions.</p>
                 <div class="cta-buttons">
-                    <a href="#" class="btn btn-primary">Start Trading</a>
+                    <a href="#" class="btn btn-primary">Start a Deal</a>
                     <a href="#" class="btn btn-secondary">Learn More</a>
                 </div>
             </div>
@@ -43,29 +43,44 @@
         </div>
     </section>
 
-    <section class="features">
+    <section class="membership-tiers">
         <div class="container">
-            <h2 class="section-title">Why Choose AutoMint</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Enhanced Security</h3>
-                    <p>Advanced encryption and multi-factor authentication to keep your assets secure.</p>
+            <h2 class="section-title">Membership Tiers</h2>
+            <div class="tier-grid">
+                <div class="tier-card">
+                    <div class="tier-header">
+                        <h3>Regular Clients</h3>
+                    </div>
+                    <div class="tier-content">
+                        <p>Basic access to AutoMint services</p>
+                        <p>Standard middleman services</p>
+                        <a href="#" class="btn btn-outline">Use MM</a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Lightning Fast</h3>
-                    <p>Execute trades in milliseconds with our high-performance trading engine.</p>
+                <div class="tier-card">
+                    <div class="tier-header">
+                        <h3>Rich Clients</h3>
+                        <div class="tier-price">$500</div>
+                    </div>
+                    <div class="tier-content">
+                        <p>Priority support</p>
+                        <p>Enhanced security features</p>
+                        <p>Reduced wait times</p>
+                        <a href="#" class="btn btn-primary">Use MM</a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>Low Fees</h3>
-                    <p>Competitive fee structure with discounts for high-volume traders.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Advanced Analytics</h3>
-                    <p>Professional-grade tools for technical analysis and market insights.</p>
+                <div class="tier-card featured">
+                    <div class="tier-header">
+                        <h3>Sigma Clients</h3>
+                        <div class="tier-price">$5000</div>
+                    </div>
+                    <div class="tier-content">
+                        <p>VIP support 24/7</p>
+                        <p>Highest security level</p>
+                        <p>Instant processing</p>
+                        <p>Exclusive benefits</p>
+                        <a href="#" class="btn btn-secondary">Use MM</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,44 +88,66 @@
 
     <section class="crypto-stats">
         <div class="container">
-            <h2 class="section-title">Market Snapshot</h2>
+            <h2 class="section-title">Live Market Prices</h2>
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" id="btc-card">
                     <h4>Bitcoin (BTC)</h4>
-                    <p class="price">$61,245.32</p>
-                    <p class="change positive">+2.4%</p>
+                    <p class="price" id="btc-price">Loading...</p>
+                    <p class="change" id="btc-change">Loading...</p>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="eth-card">
                     <h4>Ethereum (ETH)</h4>
-                    <p class="price">$3,145.76</p>
-                    <p class="change positive">+1.8%</p>
+                    <p class="price" id="eth-price">Loading...</p>
+                    <p class="change" id="eth-change">Loading...</p>
                 </div>
-                <div class="stat-card">
-                    <h4>Solana (SOL)</h4>
-                    <p class="price">$142.19</p>
-                    <p class="change negative">-0.7%</p>
-                </div>
-                <div class="stat-card">
-                    <h4>Cardano (ADA)</h4>
-                    <p class="price">$0.85</p>
-                    <p class="change positive">+3.2%</p>
+                <div class="stat-card" id="ltc-card">
+                    <h4>Litecoin (LTC)</h4>
+                    <p class="price" id="ltc-price">Loading...</p>
+                    <p class="change" id="ltc-change">Loading...</p>
                 </div>
             </div>
             <div class="view-more">
-                <a href="#" class="btn btn-outline">View All Markets</a>
+                <a href="https://www.coinbase.com/explorer" target="_blank" class="btn btn-outline">View Market Explorer</a>
             </div>
         </div>
     </section>
 
-    <section class="get-started">
+    <section class="escrow-info">
         <div class="container">
-            <div class="get-started-content">
-                <h2>Ready to start trading?</h2>
-                <p>Join thousands of traders who trust AutoMint for their cryptocurrency exchange needs.</p>
-                <a href="#" class="btn btn-primary">Create Account</a>
-            </div>
-            <div class="get-started-image">
-                <img src="/api/placeholder/450/300" alt="Mobile app trading view">
+            <h2 class="section-title">What is an Escrow?</h2>
+            <div class="info-content">
+                <p>An escrow functions as an intermediary between a buyer and a seller, holding the funds until the buyer receives the product or service they ordered. Usually, escrows are used in transactions where the buyer and seller are unknown to each other, or when the transaction is of high value. However, escrows are usually people. Mint Exchange aims to remove the human aspect of an escrow to avoid scams.</p>
+                
+                <h3>How does the Mint Exchange work?</h3>
+                <p>Mint Exchange uses a temporary wallet to hold the funds until the buyer receives the product or service. The buyer sends the funds to the bots wallet, and the seller sends the product or provides their service to the buyer. Once the buyer confirms that they have received the affirmentioned product or service, the funds can be released by the buyer to the seller. If the buyer is not satisfied with said product or service, the funds can be refunded back to the buyer.</p>
+                
+                <h3>How do I use Mint Exchange?</h3>
+                <ol>
+                    <li>Click the button below to start a deal.</li>
+                    <li>Ping, or enter the ID of the user you are trading with.</li>
+                    <li>Select your roles within the trade.</li>
+                    <li>Once the roles have been assigned, the sender of the deal will be provided with an LTC address to send the funds to.</li>
+                    <li>Once the bot has received the funds, you may proceed further with the trade.</li>
+                    <li>Once the trade has been completed and everybody is satisfied, the sender can release the funds to the receiver.</li>
+                    <li>If something goes awry, the receiver can refund the funds back to the sender.</li>
+                </ol>
+                
+                <h3>Is the bot safe?</h3>
+                <p>Yes, the bot is safe to use for everyone. We aim to remove the human aspect of an escrow to avoid scams. If you deal outside of Mint Exchange, we are not responsible for any losses you may incur.</p>
+                
+                <h3>Mint Exchange fees</h3>
+                <p>Mint Exchange charges no fees for using the service. However, network fees will apply when sending and receiving funds. We are not in control of these fees.</p>
+                
+                <div class="warning-box">
+                    <h3>Warning</h3>
+                    <p>If anyone ever asks you to deal outside of <strong>Mint Exchange</strong>, we politely advise you to immediately report them to us. We <strong>do not</strong> condone any deals outside of <strong>Mint Exchange</strong> nor are we responsible for any losses you may incur from dealing outside of <strong>Mint Exchange</strong>. We cannot assure the safety of your funds if you do.</p>
+                    <p><strong>Mint Exchange</strong> has been designed to be a safe and secure platform for all users. We always advise to use the escrow bot for your safety and security. We do not take responsibility for any losses that occur due to dealing outside of <strong>Mint Exchange</strong> with a user within our server.</p>
+                    <p>Regardless of the user having any form of "Trusted", "Admin" or "Staff" roles, we always advise against dealing outside of the bot. If you are asked to deal without using the escrow, please report them immediately. Our service is free, there is no reason to not use it.</p>
+                </div>
+                
+                <div class="notice-box">
+                    <p>Exchange is currently down for maintenance.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -122,48 +159,69 @@
                     <h2>Auto<span>Mint</span></h2>
                     <p>The future of crypto exchange.</p>
                     <div class="social-links">
-                        <a href="#">Twitter</a>
-                        <a href="#">Telegram</a>
-                        <a href="#">Discord</a>
+                        <a href="https://discord.gg/JZCHcUURVf" target="_blank">Discord</a>
+                        <a href="https://t.me/haze" target="_blank">Telegram</a>
                     </div>
                 </div>
                 <div class="footer-links">
                     <h3>Products</h3>
                     <ul>
                         <li><a href="#">Exchange</a></li>
-                        <li><a href="#">Wallet</a></li>
+                        <li><a href="#">Escrow Services</a></li>
                         <li><a href="#">API</a></li>
-                        <li><a href="#">Institutional</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Tutorials</a></li>
-                        <li><a href="#">Market Data</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Company</h3>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Legal</a></li>
-                        <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2025 AutoMint. All rights reserved.</p>
                 <div class="footer-bottom-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">Cookie Policy</a>
+                    <a href="#" target="_blank">Privacy Policy</a>
+                    <a href="#" target="_blank">Terms of Service</a>
+                    <a href="#" target="_blank">Cookie Policy</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Function to fetch and update cryptocurrency prices
+        async function updateCryptoPrices() {
+            try {
+                // Fetch data from CoinGecko API
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+                
+                // Update Bitcoin
+                const btcPrice = document.getElementById('btc-price');
+                const btcChange = document.getElementById('btc-change');
+                btcPrice.textContent = `$${data.bitcoin.usd.toLocaleString()}`;
+                btcChange.textContent = `${data.bitcoin.usd_24h_change.toFixed(2)}%`;
+                btcChange.className = data.bitcoin.usd_24h_change >= 0 ? 'change positive' : 'change negative';
+                
+                // Update Ethereum
+                const ethPrice = document.getElementById('eth-price');
+                const ethChange = document.getElementById('eth-change');
+                ethPrice.textContent = `$${data.ethereum.usd.toLocaleString()}`;
+                ethChange.textContent = `${data.ethereum.usd_24h_change.toFixed(2)}%`;
+                ethChange.className = data.ethereum.usd_24h_change >= 0 ? 'change positive' : 'change negative';
+                
+                // Update Litecoin
+                const ltcPrice = document.getElementById('ltc-price');
+                const ltcChange = document.getElementById('ltc-change');
+                ltcPrice.textContent = `$${data.litecoin.usd.toLocaleString()}`;
+                ltcChange.textContent = `${data.litecoin.usd_24h_change.toFixed(2)}%`;
+                ltcChange.className = data.litecoin.usd_24h_change >= 0 ? 'change positive' : 'change negative';
+                
+            } catch (error) {
+                console.error('Error fetching cryptocurrency prices:', error);
+            }
+        }
+        
+        // Initial update
+        updateCryptoPrices();
+        
+        // Update prices every 30 seconds
+        setInterval(updateCryptoPrices, 30000);
+    </script>
 </body>
 </html>
